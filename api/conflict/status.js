@@ -2,8 +2,6 @@
  * GET /api/conflict/status?task_id=xxx
  * GET /api/conflict/status?share_id=xxx
  */
-import { createClient } from '@supabase/supabase-js'
-
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -17,7 +15,11 @@ export default async function handler(req, res) {
 
   try {
     const { createClient } = await import('@supabase/supabase-js')
-    const sb = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
+    // service_role key 绕过 RLS，确保匿名用户也能读取报告
+    const sb = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_KEY
+    )
 
     let data, error
 
